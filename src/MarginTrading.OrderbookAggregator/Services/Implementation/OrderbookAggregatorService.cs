@@ -82,8 +82,8 @@ namespace MarginTrading.OrderbookAggregator.Services.Implementation
         private static IMessageProducer<ExternalExchangeOrderbookMessage> CreateRabbitMqMessageProducer(
             IReloadingManager<MarginTradingOrderbookAggregatorSettings> settings, IRabbitMqService rabbitMqService)
         {
-            return rabbitMqService.GetProducer<ExternalExchangeOrderbookMessage>(
-                settings.Nested(s => s.RabbitMq.Publishers.Orderbooks), false);
+            return rabbitMqService.GetProducer(settings.Nested(s => s.RabbitMq.Publishers.Orderbooks), false, 
+                rabbitMqService.GetMsgPackSerializer<ExternalExchangeOrderbookMessage>());
         }
 
         public void Initialize()

@@ -37,17 +37,16 @@ namespace MarginTrading.OrderbookAggregator.Services.Implementation
         public void AlertStarted()
         {
             AlertRiskOfficer(null, "Market maker started", EventTypeEnum.StatusInfo);
-            var startedMessage = new StartedMessage();
-            _rabbitMqService.GetProducer<StartedMessage>(
-                    _settings.Nested(s => s.RabbitMq.Publishers.Started), true)
-                .ProduceAsync(startedMessage);
+            _rabbitMqService.GetProducer(_settings.Nested(s => s.RabbitMq.Publishers.Started), true, 
+                    _rabbitMqService.GetJsonSerializer<StartedMessage>())
+                .ProduceAsync(new StartedMessage());
         }
 
         public Task AlertStopping()
         {
             AlertRiskOfficer(null, "Market maker stopping", EventTypeEnum.StatusInfo);
-            return _rabbitMqService.GetProducer<StoppingMessage>(
-                    _settings.Nested(s => s.RabbitMq.Publishers.Stopping), true)
+            return _rabbitMqService.GetProducer(_settings.Nested(s => s.RabbitMq.Publishers.Stopping), true,
+                    _rabbitMqService.GetJsonSerializer<StoppingMessage>())
                 .ProduceAsync(new StoppingMessage());
         }
     }

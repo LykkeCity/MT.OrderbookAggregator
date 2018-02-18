@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Common;
+using Lykke.RabbitMqBroker.Publisher;
 using Lykke.SettingsReader;
 using MarginTrading.OrderbookAggregator.Infrastructure;
 using MarginTrading.OrderbookAggregator.Settings;
@@ -27,7 +28,7 @@ namespace MarginTrading.OrderbookAggregator.Tests.Integrational
                 .Select(w => w.Message).ToList();
         }
 
-        public IMessageProducer<TMessage> GetProducer<TMessage>(IReloadingManager<RabbitConnectionSettings> settings, bool isDurable)
+        public IMessageProducer<TMessage> GetProducer<TMessage>(IReloadingManager<RabbitConnectionSettings> settings, bool isDurable, IRabbitMqSerializer<TMessage> serializer)
         {
             return (IMessageProducer<TMessage>) GetProducer<TMessage>();
         }
@@ -35,6 +36,16 @@ namespace MarginTrading.OrderbookAggregator.Tests.Integrational
         public void Subscribe<TMessage>(IReloadingManager<RabbitConnectionSettings> settings, bool isDurable, Func<TMessage, Task> handler)
         {
             throw new NotImplementedException();
+        }
+
+        public IRabbitMqSerializer<TMessage> GetJsonSerializer<TMessage>()
+        {
+            return new JsonMessageSerializer<TMessage>();
+        }
+
+        public IRabbitMqSerializer<TMessage> GetMsgPackSerializer<TMessage>()
+        {
+            return new MessagePackMessageSerializer<TMessage>();
         }
 
         public void Reset()
