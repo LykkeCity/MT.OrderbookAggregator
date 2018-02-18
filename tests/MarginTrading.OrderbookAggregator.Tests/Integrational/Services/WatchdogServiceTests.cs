@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Autofac;
 using Common;
@@ -11,7 +10,7 @@ using MarginTrading.OrderbookAggregator.Services;
 using Moq;
 using NUnit.Framework;
 
-namespace Tests.Integrational.Services
+namespace MarginTrading.OrderbookAggregator.Tests.Integrational.Services
 {
     public class WatchdogServiceTests
     {

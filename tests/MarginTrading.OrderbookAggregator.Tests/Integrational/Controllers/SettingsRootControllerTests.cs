@@ -7,7 +7,7 @@ using MarginTrading.OrderbookAggregator.Enums;
 using MarginTrading.OrderbookAggregator.Models.Settings;
 using NUnit.Framework;
 
-namespace Tests.Integrational.Controllers
+namespace MarginTrading.OrderbookAggregator.Tests.Integrational.Controllers
 {
     public class SettingsRootControllerTests
     {

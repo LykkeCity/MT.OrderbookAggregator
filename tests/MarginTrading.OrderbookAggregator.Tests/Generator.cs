@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Tests
+namespace MarginTrading.OrderbookAggregator.Tests
 {
     internal class Generator<T> : IEnumerable<T>
     {

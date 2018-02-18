@@ -1,18 +1,12 @@
-﻿using System;
-using System.Collections.Immutable;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Autofac;
 using FluentAssertions;
-using MarginTrading.OrderbookAggregator.Contracts.Api;
-using MarginTrading.OrderbookAggregator.Contracts.Messages;
 using MarginTrading.OrderbookAggregator.Controllers;
-using MarginTrading.OrderbookAggregator.Enums;
-using MarginTrading.OrderbookAggregator.Models.Settings;
 using MarginTrading.OrderbookAggregator.Services;
 using NUnit.Framework;
 
-namespace Tests.Integrational.Controllers
+namespace MarginTrading.OrderbookAggregator.Tests.Integrational.Controllers
 {
     public class StatusControllerTests
     {

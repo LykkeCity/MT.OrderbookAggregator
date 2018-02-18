@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Lykke.SettingsReader;
 
-namespace Tests.Integrational
+namespace MarginTrading.OrderbookAggregator.Tests.Integrational
 {
     public class StubReloadingManager<T> : IReloadingManager<T>
     {

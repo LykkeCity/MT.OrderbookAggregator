@@ -7,7 +7,7 @@ using MarginTrading.OrderbookAggregator.Contracts.Api;
 using MarginTrading.OrderbookAggregator.Contracts.Messages;
 using MarginTrading.OrderbookAggregator.Enums;
 
-namespace Tests.Integrational
+namespace MarginTrading.OrderbookAggregator.Tests.Integrational
 {
     internal static class OaTestEnvExtensions
     {

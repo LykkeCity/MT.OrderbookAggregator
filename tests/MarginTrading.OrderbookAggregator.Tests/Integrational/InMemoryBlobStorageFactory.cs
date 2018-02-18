@@ -2,7 +2,7 @@
 using Lykke.SettingsReader;
 using MarginTrading.OrderbookAggregator.AzureRepositories;
 
-namespace Tests.Integrational
+namespace MarginTrading.OrderbookAggregator.Tests.Integrational
 {
     internal class InMemoryBlobStorageFactory : IAzureBlobStorageFactoryService
     {

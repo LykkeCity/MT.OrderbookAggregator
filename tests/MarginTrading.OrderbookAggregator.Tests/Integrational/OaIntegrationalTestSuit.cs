@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Immutable;
-using System.Linq;
 using System.Threading.Tasks;
 using Autofac;
 using Common.Log;
 using Lykke.Logs;
-using Lykke.Service.Assets.Client;
 using Lykke.Service.CandlesHistory.Client;
 using Lykke.SlackNotifications;
 using MarginTrading.OrderbookAggregator.AzureRepositories;
@@ -18,7 +16,7 @@ using MarginTrading.OrderbookAggregator.Modules;
 using MarginTrading.OrderbookAggregator.Settings;
 using Moq;
 
-namespace Tests.Integrational
+namespace MarginTrading.OrderbookAggregator.Tests.Integrational
 {
     internal class OaIntegrationalTestSuit : IntegrationalTestSuit
     {

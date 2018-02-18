@@ -6,7 +6,7 @@ using FluentAssertions.Equivalency;
 using Microsoft.Rest;
 using Moq;
 
-namespace Tests
+namespace MarginTrading.OrderbookAggregator.Tests
 {
     internal static class ObjectExtensions
     {

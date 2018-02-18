@@ -8,7 +8,7 @@ using Lykke.SettingsReader;
 using MarginTrading.OrderbookAggregator.AzureRepositories;
 using Microsoft.WindowsAzure.Storage.Table;
 
-namespace Tests.Integrational
+namespace MarginTrading.OrderbookAggregator.Tests.Integrational
 {
     internal class InMemoryTableStorageFactory : IAzureTableStorageFactoryService
     {

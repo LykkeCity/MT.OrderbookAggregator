@@ -1,7 +1,7 @@
 ﻿using System;
 using MarginTrading.OrderbookAggregator.AzureRepositories.StorageModels;
 
-namespace Tests.Integrational
+namespace MarginTrading.OrderbookAggregator.Tests.Integrational
 {
     internal interface IOaTestEnvironment : ITestEnvironment
     {

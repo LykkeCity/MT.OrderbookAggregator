@@ -5,7 +5,7 @@ using MarginTrading.OrderbookAggregator.Infrastructure;
 using MarginTrading.OrderbookAggregator.Services;
 using NUnit.Framework;
 
-namespace Tests.Integrational.Services
+namespace MarginTrading.OrderbookAggregator.Tests.Integrational.Services
 {
     public class OrderbookAggregatorServiceTests
     {

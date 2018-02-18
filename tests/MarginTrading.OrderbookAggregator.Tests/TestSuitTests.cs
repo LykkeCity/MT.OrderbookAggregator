@@ -2,7 +2,7 @@
 using JetBrains.Annotations;
 using NUnit.Framework;
 
-namespace Tests
+namespace MarginTrading.OrderbookAggregator.Tests
 {
     public class TestSuitTests
     {

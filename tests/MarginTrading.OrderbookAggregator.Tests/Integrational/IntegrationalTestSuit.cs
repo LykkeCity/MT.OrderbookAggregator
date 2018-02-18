@@ -8,7 +8,7 @@ using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 
-namespace Tests.Integrational
+namespace MarginTrading.OrderbookAggregator.Tests.Integrational
 {
     public class IntegrationalTestSuit : TestSuitBase
     {

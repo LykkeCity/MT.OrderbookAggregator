@@ -3,7 +3,7 @@ using System.Linq.Expressions;
 using Autofac;
 using Moq;
 
-namespace Tests.Integrational
+namespace MarginTrading.OrderbookAggregator.Tests.Integrational
 {
     public interface ITestEnvironment
     {

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Concurrent;
 using MarginTrading.OrderbookAggregator.AzureRepositories;
 
-namespace Tests.Integrational
+namespace MarginTrading.OrderbookAggregator.Tests.Integrational
 {
     internal class AzureBlobJsonStorageInMemory : IAzureBlobJsonStorage
     {

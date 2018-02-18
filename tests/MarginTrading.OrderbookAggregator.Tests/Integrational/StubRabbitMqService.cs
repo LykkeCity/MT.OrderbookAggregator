@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +9,7 @@ using Lykke.SettingsReader;
 using MarginTrading.OrderbookAggregator.Infrastructure;
 using MarginTrading.OrderbookAggregator.Settings;
 
-namespace Tests.Integrational
+namespace MarginTrading.OrderbookAggregator.Tests.Integrational
 {
     public class StubRabbitMqService : IRabbitMqService
     {

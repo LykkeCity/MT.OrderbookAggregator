@@ -5,9 +5,8 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Moq;
-using Moq.Language.Flow;
 
-namespace Tests
+namespace MarginTrading.OrderbookAggregator.Tests
 {
     public class TestSuit<TSut> : TestSuit where TSut : class
     {
