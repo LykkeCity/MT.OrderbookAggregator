@@ -13,6 +13,7 @@ using Lykke.Common.ApiLibrary.Swagger;
 using Lykke.Logs;
 using Lykke.SettingsReader;
 using Lykke.SlackNotification.AzureQueue;
+using MarginTrading.OrderbookAggregator.Contracts.Api;
 using MarginTrading.OrderbookAggregator.Infrastructure;
 using MarginTrading.OrderbookAggregator.Infrastructure.Implementation;
 using MarginTrading.OrderbookAggregator.Modules;
