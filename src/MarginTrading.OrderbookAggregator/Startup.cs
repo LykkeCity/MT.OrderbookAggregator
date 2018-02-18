@@ -123,12 +123,6 @@ namespace MarginTrading.OrderbookAggregator
             {
                 // NOTE: Service not yet recieve and process requests here
 
-                var settings = ApplicationContainer.Resolve<IReloadingManager<MarginTradingOrderbookAggregatorSettings>>().CurrentValue;
-                if (!string.IsNullOrEmpty(settings.ApplicationInsightsKey))
-                {
-                    TelemetryConfiguration.Active.InstrumentationKey = settings.ApplicationInsightsKey;
-                }
-
                 ApplicationContainer.Resolve<IBrokerService>().Run();
 
                 await Log.WriteMonitorAsync("", "", "Started");
