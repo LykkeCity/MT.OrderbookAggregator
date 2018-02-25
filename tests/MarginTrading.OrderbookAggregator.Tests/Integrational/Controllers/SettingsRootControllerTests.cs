@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Immutable;
 using Autofac;
 using FluentAssertions;
 using MarginTrading.OrderbookAggregator.Controllers;
@@ -26,9 +25,7 @@ namespace MarginTrading.OrderbookAggregator.Tests.Integrational.Controllers
             var settings = sut.Get();
             env.Sleep(new TimeSpan(1));
             settings.Exchanges.Add("ICM",
-                new ExchangeSettings(ExchangeModeEnum.TakeAll,
-                    ImmutableSortedDictionary<string, AssetPairSettings>.Empty,
-                    new AssetPairSettings(new AssetPairMarkupsParams(-11, 11)), TimeSpan.FromSeconds(12)));
+                new ExchangeSettings(ExchangeModeEnum.TakeConfigured, TimeSpan.FromSeconds(12)));
             sut.Set(settings);
             var settings2 = sut.Get();
             

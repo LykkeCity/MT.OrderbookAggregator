@@ -5,6 +5,7 @@ using Common;
 using Lykke.SettingsReader;
 using MarginTrading.OrderbookAggregator.AzureRepositories.StorageModels;
 using MarginTrading.OrderbookAggregator.Infrastructure;
+using MarginTrading.OrderbookAggregator.Infrastructure.Implementation;
 using MarginTrading.OrderbookAggregator.Models.Settings;
 using MarginTrading.OrderbookAggregator.Settings;
 using Newtonsoft.Json;
@@ -32,6 +33,9 @@ namespace MarginTrading.OrderbookAggregator.AzureRepositories.Implementation
             var settingsRootStorageModel = _blobStorage.Read<SettingsRootStorageModel>(BlobContainer, Key);
             if (settingsRootStorageModel == null)
                 return null;
+
+            settingsRootStorageModel.Version.RequiredEqualsTo(CurrentStorageModelVersion,
+                nameof(settingsRootStorageModel.Version));
 
             return Convert(settingsRootStorageModel);
         }

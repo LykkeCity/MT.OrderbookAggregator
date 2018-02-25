@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 namespace MarginTrading.OrderbookAggregator.Contracts.Messages
 {
     /// <summary>
-    /// Info about best bid and ask for an asset
+    /// Info about bids and asks for an asset from an exchange
     /// </summary>
     [PublicAPI, MessagePackObject]
     public class ExternalExchangeOrderbookMessage

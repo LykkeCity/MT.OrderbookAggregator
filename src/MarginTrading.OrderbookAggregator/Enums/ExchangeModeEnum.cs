@@ -1,6 +1,4 @@
-﻿using MarginTrading.OrderbookAggregator.Models.Settings;
-
-namespace MarginTrading.OrderbookAggregator.Enums
+﻿namespace MarginTrading.OrderbookAggregator.Enums
 {
     public enum ExchangeModeEnum
     {
@@ -10,14 +8,8 @@ namespace MarginTrading.OrderbookAggregator.Enums
         Disabled = 1,
         
         /// <summary>
-        ///     Asset pairs, added to <see cref="ExchangeSettings.AssetPairs"/> are taken with their configs,
-        ///     and all others - using <see cref="ExchangeSettings.DefaultSettings"/> config.
+        ///     Asset pairs which are configured in the asset pairs settings api are taken
         /// </summary>
-        TakeAll = 2,
-        
-        /// <summary>
-        ///     Only asset pairs explicitly added to <see cref="ExchangeSettings.AssetPairs"/> are taken
-        /// </summary>
-        UseOnlyExplicitlyConfigured = 3,
+        TakeConfigured = 2,
     }
 }

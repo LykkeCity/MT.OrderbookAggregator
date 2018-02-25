@@ -7,7 +7,7 @@ namespace MarginTrading.OrderbookAggregator.Services
 {
     public interface ISettingsService
     {
-        [CanBeNull] AssetPairSettings TryGetAssetPair(string exchangeName, string assetPairId);
+        [CanBeNull] AssetPairSettings TryGetAssetPair(string exchangeName, string basePairId);
         TimeSpan GetOutdatingCalculationPeriod();
         bool IsTracePersistanceEnabled();
         TimeSpan GetOutdatedAlertRepeatPeriod();

@@ -42,25 +42,26 @@ namespace MarginTrading.OrderbookAggregator.Services.Implementation
 
         public Task ProcessNewExternalOrderbookAsync(ExternalExchangeOrderbookMessage orderbook)
         {
+            if (string.IsNullOrEmpty(orderbook.AssetPairId) || string.IsNullOrEmpty(orderbook.ExchangeName))
+                return Task.CompletedTask;
+            
             var settings = _settingsService.TryGetAssetPair(orderbook.ExchangeName, orderbook.AssetPairId);
             if (settings == null || (orderbook.Bids?.Count ?? 0) == 0 || (orderbook.Asks?.Count ?? 0) == 0)
-            {
                 return Task.CompletedTask;
-            }
 
-            orderbook.Bids.RemoveAll(b => b == null);
-            orderbook.Asks.RemoveAll(b => b == null);
+            orderbook.Bids.RemoveAll(e => e == null || e.Price <= 0 || e.Volume == 0);
+            orderbook.Asks.RemoveAll(e => e == null || e.Price <= 0 || e.Volume == 0);
             orderbook.Bids.Sort((a, b) => -a.Price.CompareTo(b.Price));
             orderbook.Asks.Sort((a, b) => a.Price.CompareTo(b.Price));
 
             var now = _system.UtcNow;
             var externalOrderbook = new ExternalExchangeOrderbookMessage
             {
-                AssetPairId = orderbook.AssetPairId,
+                AssetPairId = settings.ResultingAssetPairId,
                 ExchangeName = orderbook.ExchangeName,
                 Timestamp = now,
-                Bids = GetOrderbookPositions(orderbook.Bids, settings.Markups.Bid),
-                Asks = GetOrderbookPositions(orderbook.Asks, settings.Markups.Ask)
+                Bids = GetOrderbookPositions(orderbook.Bids, settings.Markups.BidMultiplier),
+                Asks = GetOrderbookPositions(orderbook.Asks, settings.Markups.AskMultiplier)
             };
 
             _watchdogService.OnOrderbookArrived(orderbook.ExchangeName, orderbook.AssetPairId, now);
@@ -69,11 +70,11 @@ namespace MarginTrading.OrderbookAggregator.Services.Implementation
         }
 
         private static List<VolumePrice> GetOrderbookPositions(IEnumerable<VolumePrice> prices,
-            decimal markup)
+            decimal markupMultiplier)
         {
             return prices.GroupBy(p => p.Price).Select(gr => new VolumePrice
                 {
-                    Price = gr.Key + markup,
+                    Price = gr.Key * markupMultiplier,
                     Volume = gr.Sum(b => b.Volume),
                 })
                 .ToList();
@@ -110,9 +111,11 @@ namespace MarginTrading.OrderbookAggregator.Services.Implementation
                     now, OrderbookStatusEnum.Valid));
 
             Trace.Write(TraceLevelGroupEnum.Trace, orderbook.AssetPairId,
-                $"Orderbook from {orderbook.ExchangeName} for {orderbook.AssetPairId}: {resultingBestPrices.BestBid}/{resultingBestPrices.BestAsk}",
+                $"Orderbook from {orderbook.ExchangeName} for {resultingOrderbook.AssetPairId}: " +
+                $"{resultingBestPrices.BestBid}/{resultingBestPrices.BestAsk}",
                 new
                 {
+                    ResultingAssetPairId = resultingOrderbook.AssetPairId,
                     Event = "ExternalOrderbookProcessed",
                     Source = orderbook.ExchangeName,
                     bestPrices.BestBid,

@@ -9,5 +9,6 @@ namespace MarginTrading.OrderbookAggregator.Settings
         [CanBeNull, Optional]
         public SlackNotificationsSettings SlackNotifications { get; set; }
         public RiskInformingSettings RiskInformingSettings { get; set; }
+        public MtDataReaderClientSettings MtDataReaderLiveServiceClient { get; set; }
     }
 }

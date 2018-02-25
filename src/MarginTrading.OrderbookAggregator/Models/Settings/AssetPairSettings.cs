@@ -2,11 +2,13 @@
 {
     public class AssetPairSettings
     {
-        public AssetPairSettings(AssetPairMarkupsParams markups)
+        public AssetPairSettings(AssetPairMarkupsParams markups, string resultingAssetPairId)
         {
             Markups = markups;
+            ResultingAssetPairId = resultingAssetPairId;
         }
 
         public AssetPairMarkupsParams Markups { get; }
+        public string ResultingAssetPairId { get; }
     }
 }

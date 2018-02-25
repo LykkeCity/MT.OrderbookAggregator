@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
 using Autofac;
@@ -6,6 +7,9 @@ using Common.Log;
 using Lykke.Logs;
 using Lykke.Service.CandlesHistory.Client;
 using Lykke.SlackNotifications;
+using MarginTrading.Backend.Contracts;
+using MarginTrading.Backend.Contracts.AssetPairSettings;
+using MarginTrading.Backend.Contracts.DataReaderClient;
 using MarginTrading.OrderbookAggregator.AzureRepositories;
 using MarginTrading.OrderbookAggregator.AzureRepositories.Implementation;
 using MarginTrading.OrderbookAggregator.AzureRepositories.StorageModels;
@@ -52,8 +56,29 @@ namespace MarginTrading.OrderbookAggregator.Tests.Integrational
             public DateTime UtcNow { get; set; } = DateTime.UtcNow;
             public StubRabbitMqService StubRabbitMqService { get; } = new StubRabbitMqService();
             public InMemoryTableStorageFactory TableStorageFactory { get; } = new InMemoryTableStorageFactory();
+
             public InMemoryBlobStorageSingleObjectFactory BlobStorageFactory { get; } =
                 new InMemoryBlobStorageSingleObjectFactory();
+
+            public List<AssetPairSettingsContract> AssetPairSettings { get; } = new List<AssetPairSettingsContract>
+            {
+                new AssetPairSettingsContract
+                {
+                    AssetPairId = "BTCUSD",
+                    BasePairId = "BTCUSD",
+                    MatchingEngineMode = MatchingEngineModeContract.Stp,
+                    MultiplierMarkupAsk = 1,
+                    MultiplierMarkupBid = 1
+                },
+                new AssetPairSettingsContract
+                {
+                    AssetPairId = "ETHUSD",
+                    BasePairId = "ETHUSD",
+                    MatchingEngineMode = MatchingEngineModeContract.Stp,
+                    MultiplierMarkupAsk = 1,
+                    MultiplierMarkupBid = 1
+                },
+            };
 
             public SettingsRootStorageModel SettingsRoot
             {
@@ -71,7 +96,11 @@ namespace MarginTrading.OrderbookAggregator.Tests.Integrational
                     .Setup<ISlackNotificationsSender>(s =>
                         s.SendAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()) == Task.CompletedTask)
                     .Setup<IAzureTableStorageFactoryService>(TableStorageFactory)
-                    .Setup<IAzureBlobStorageFactoryService>(BlobStorageFactory);
+                    .Setup<IAzureBlobStorageFactoryService>(BlobStorageFactory)
+                    .Setup<IAssetPairSettingsReadingApi>(m => m.Setup(a =>
+                        a.Get(MatchingEngineModeContract.Stp)).ReturnsAsync(AssetPairSettings))
+                    .Setup<IMtDataReaderClient>(m =>
+                        m.AssetPairSettingsRead == suit.GetMockObj<IAssetPairSettingsReadingApi>());
                 SettingsRoot = GetDefaultSettingsRoot();
             }
 
@@ -89,16 +118,7 @@ namespace MarginTrading.OrderbookAggregator.Tests.Integrational
                     Exchanges = ImmutableSortedDictionary<string, ExchangeSettingsStorageModel>.Empty.Add("bitmex",
                         new ExchangeSettingsStorageModel
                         {
-                            AssetPairs = ImmutableSortedDictionary<string, AssetPairSettingsStorageModel>.Empty,
-                            DefaultSettings = new AssetPairSettingsStorageModel
-                            {
-                                Markups = new MarkupSettingsStorageModel
-                                {
-                                    Bid = 0, 
-                                    Ask = 0,
-                                }
-                            },
-                            Mode = ExchangeModeEnum.TakeAll,
+                            Mode = ExchangeSettingsStorageModel.ExchangeModeEnumStorageModel.TakeConfigured,
                             OutdatingThreshold = TimeSpan.FromSeconds(10),
                         }),
                     OutdationCheckPeriod = TimeSpan.FromSeconds(10),

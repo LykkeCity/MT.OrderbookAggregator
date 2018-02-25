@@ -33,8 +33,8 @@ namespace MarginTrading.OrderbookAggregator.Tests.Integrational.Services
             var start = env.UtcNow = env.UtcNow.RoundToSecond();
             await aggregatorService.ProcessNewExternalOrderbookAsync(env.GetOrderbookMessage("bitmex",
                 Generate.Decimals(1.01m)));
-            await aggregatorService.ProcessNewExternalOrderbookAsync(env.GetOrderbookMessage("bitfinex", 
-                Generate.Decimals(1.1m), "ETHUSD"));
+            await aggregatorService.ProcessNewExternalOrderbookAsync(env.GetOrderbookMessage("bitfinex",
+                    Generate.Decimals(1.1m), "ETHUSD"));
             var lastBitfinexOrderbook = env.GetOrderbookMessage("bitfinex", Generate.Decimals(1.02m));
             await aggregatorService.ProcessNewExternalOrderbookAsync(lastBitfinexOrderbook);
 
@@ -46,33 +46,28 @@ namespace MarginTrading.OrderbookAggregator.Tests.Integrational.Services
             env.SleepSecs(2); // 10 secs outdation threshold configured 
 
             await ((TimerPeriod) watchdogService).Execute();
-            
+
             var listResult = await statusController.List();
 
             //assert
             var bitfinexStatus = env.MakeOrderbookStatusModel("bitfinex", "BTCUSD", 1.02m);
             bitfinexStatus.Status = OrderbookStatusEnum.Outdated.ToString();
             bitfinexStatus.LastUpdateTime = lastBitfinexOrderbook.Timestamp;
-            
+
             var bitfinexEthStatus = env.MakeOrderbookStatusModel("bitfinex", "ETHUSD", 1.1m);
             bitfinexEthStatus.Status = OrderbookStatusEnum.Outdated.ToString();
             bitfinexEthStatus.LastUpdateTime = lastBitfinexOrderbook.Timestamp;
 
             var bitmexStatus = env.MakeOrderbookStatusModel("bitmex", "BTCUSD", 1.03m);
             bitmexStatus.LastUpdateTime = lastBitmexOrderbook.Timestamp;
-            
-            listResult.Should().BeEquivalentTo(new[]
-            {
-                bitfinexStatus,
-                bitfinexEthStatus,
-                bitmexStatus,
-            });
+
+            listResult.Should().BeEquivalentTo(bitfinexStatus, bitfinexEthStatus, bitmexStatus);
 
             _testSuit.GetMock<ISlackNotificationsSender>().Verify(m =>
                 m.SendAsync("mt-critical", "MT OrderbookAggregator",
                     $"Orderbooks from bitfinex stopped for: BTCUSD (at {start:g}), ETHUSD (at {start:g})"), Times.Once);
         }
-        
+
         [Test]
         public async Task IfLastUpdateTooMuchTimeAgo_ShouldRepeatAlertNotTooOften()
         {
@@ -95,13 +90,13 @@ namespace MarginTrading.OrderbookAggregator.Tests.Integrational.Services
                 env.SleepSecs(11);
                 await ((TimerPeriod) watchdogService).Execute();
             }
-            
+
             //assert
             _testSuit.GetMock<ISlackNotificationsSender>().Verify(m =>
                 m.SendAsync("mt-critical", "MT OrderbookAggregator",
                     $"Orderbooks from bitfinex stopped for: BTCUSD (at {start:g})"), Times.Exactly(3));
         }
-        
+
         [Test]
         public async Task IfOrderbookReceivedAfterOutdation_ShouldDetectReversionToValidState()
         {
@@ -119,7 +114,7 @@ namespace MarginTrading.OrderbookAggregator.Tests.Integrational.Services
             var start = env.UtcNow = env.UtcNow.RoundToSecond();
             await aggregatorService.ProcessNewExternalOrderbookAsync(env.GetOrderbookMessage("bitmex",
                 Generate.Decimals(1.01m)));
-            await aggregatorService.ProcessNewExternalOrderbookAsync(env.GetOrderbookMessage("bitfinex", 
+            await aggregatorService.ProcessNewExternalOrderbookAsync(env.GetOrderbookMessage("bitfinex",
                 Generate.Decimals(1.1m), "ETHUSD"));
             var lastBitfinexOrderbook = env.GetOrderbookMessage("bitfinex", Generate.Decimals(1.02m));
             await aggregatorService.ProcessNewExternalOrderbookAsync(lastBitfinexOrderbook);
@@ -132,46 +127,39 @@ namespace MarginTrading.OrderbookAggregator.Tests.Integrational.Services
             env.SleepSecs(2); // 10 secs outdation threshold configured 
 
             await ((TimerPeriod) watchdogService).Execute();
-            
+
             var outdatedResult = await statusController.List();
-            
-            await aggregatorService.ProcessNewExternalOrderbookAsync(env.GetOrderbookMessage("bitfinex", 
+
+            await aggregatorService.ProcessNewExternalOrderbookAsync(env.GetOrderbookMessage("bitfinex",
                 Generate.Decimals(1.2m), "ETHUSD"));
-            
+
             await ((TimerPeriod) watchdogService).Execute();
-            
+
             var afterReversionResult = await statusController.List();
 
             //assert
             var bitfinexStatus = env.MakeOrderbookStatusModel("bitfinex", "BTCUSD", 1.02m);
             bitfinexStatus.Status = OrderbookStatusEnum.Outdated.ToString();
             bitfinexStatus.LastUpdateTime = lastBitfinexOrderbook.Timestamp;
-            
+
             var bitfinexEthStatus = env.MakeOrderbookStatusModel("bitfinex", "ETHUSD", 1.1m);
             bitfinexEthStatus.Status = OrderbookStatusEnum.Outdated.ToString();
             bitfinexEthStatus.LastUpdateTime = lastBitfinexOrderbook.Timestamp;
 
             var bitmexStatus = env.MakeOrderbookStatusModel("bitmex", "BTCUSD", 1.03m);
             bitmexStatus.LastUpdateTime = lastBitmexOrderbook.Timestamp;
-            
-            outdatedResult.Should().BeEquivalentTo(new[]
-            {
+
+            outdatedResult.Should().BeEquivalentTo(bitfinexStatus, bitfinexEthStatus, bitmexStatus);
+
+            afterReversionResult.Should().BeEquivalentTo(
                 bitfinexStatus,
-                bitfinexEthStatus,
-                bitmexStatus,
-            });
-            
-            afterReversionResult.Should().BeEquivalentTo(new[]
-            {
-                bitfinexStatus,
-                env.MakeOrderbookStatusModel("bitfinex", "ETHUSD", 1.2m),
-                bitmexStatus,
-            });
+                env.MakeOrderbookStatusModel("bitfinex", "ETHUSD", 1.2m), 
+                bitmexStatus);
 
             _testSuit.GetMock<ISlackNotificationsSender>().Verify(m =>
                 m.SendAsync("mt-critical", "MT OrderbookAggregator",
                     $"Orderbooks from bitfinex stopped for: BTCUSD (at {start:g}), ETHUSD (at {start:g})"), Times.Once);
-            
+
             _testSuit.GetMock<ISlackNotificationsSender>().Verify(m =>
                 m.SendAsync("mt-critical", "MT OrderbookAggregator",
                     $"Orderbooks from bitfinex started for: ETHUSD (at {env.UtcNow:g})"), Times.Once);

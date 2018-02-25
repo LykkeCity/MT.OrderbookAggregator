@@ -6,10 +6,13 @@ namespace MarginTrading.OrderbookAggregator.AzureRepositories.StorageModels
 {
     internal class ExchangeSettingsStorageModel
     {
-        public AssetPairSettingsStorageModel DefaultSettings { get; set; }
-        public ExchangeModeEnum Mode { get; set; }
-        public ImmutableSortedDictionary<string, AssetPairSettingsStorageModel> AssetPairs { get; set; }
-            = ImmutableSortedDictionary<string, AssetPairSettingsStorageModel>.Empty;
+        public ExchangeModeEnumStorageModel Mode { get; set; }
         public TimeSpan OutdatingThreshold { get; set; }
+
+        public enum ExchangeModeEnumStorageModel
+        {
+            Disabled = 1,
+            TakeConfigured = 2,
+        }
     }
 }

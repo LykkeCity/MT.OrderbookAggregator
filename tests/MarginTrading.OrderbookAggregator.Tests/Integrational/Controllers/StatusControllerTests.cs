@@ -35,13 +35,11 @@ namespace MarginTrading.OrderbookAggregator.Tests.Integrational.Controllers
             var byExchangeResult = await statusController.GetByExchange("bitmex");
 
             //assert
-            listResult.Should().BeEquivalentTo(new[]
-            {
+            listResult.Should().BeEquivalentTo(
                 env.MakeOrderbookStatusModel("bitmex", "BTCUSD", 1.01m),
-                env.MakeOrderbookStatusModel("bitfinex", "ETHUSD", 1.02m)
-            });
-            byAssetPairResult.Should().BeEquivalentTo(new[] {env.MakeOrderbookStatusModel("bitmex", "BTCUSD", 1.01m)});
-            byExchangeResult.Should().BeEquivalentTo(new[] {env.MakeOrderbookStatusModel("bitmex", "BTCUSD", 1.01m)});
+                env.MakeOrderbookStatusModel("bitfinex", "ETHUSD", 1.02m));
+            byAssetPairResult.Should().BeEquivalentTo(env.MakeOrderbookStatusModel("bitmex", "BTCUSD", 1.01m));
+            byExchangeResult.Should().BeEquivalentTo(env.MakeOrderbookStatusModel("bitmex", "BTCUSD", 1.01m));
         }
     }
 }

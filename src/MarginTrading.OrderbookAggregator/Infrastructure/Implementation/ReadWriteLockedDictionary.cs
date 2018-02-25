@@ -133,10 +133,12 @@ namespace MarginTrading.OrderbookAggregator.Infrastructure.Implementation
         public TValue GetOrDefault(TKey key, Func<TKey, TValue> defaultValue)
         {
             using (_lock.EnterReadLock())
-                return _dictionary.TryGetValue(key, out TValue value) ? value : defaultValue(key);
+                return _dictionary.TryGetValue(key, out var value) ? value : defaultValue(key);
         }
 
-        public ICollection<TKey> Keys
+        ICollection<TKey> IDictionary<TKey, TValue>.Keys => Keys;
+        
+        public ImmutableArray<TKey> Keys
         {
             get
             {
@@ -145,7 +147,9 @@ namespace MarginTrading.OrderbookAggregator.Infrastructure.Implementation
             }
         }
 
-        public ICollection<TValue> Values
+        ICollection<TValue> IDictionary<TKey, TValue>.Values => Values;
+        
+        public ImmutableArray<TValue> Values
         {
             get
             {

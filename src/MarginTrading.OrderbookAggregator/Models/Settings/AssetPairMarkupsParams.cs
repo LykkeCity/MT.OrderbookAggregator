@@ -2,13 +2,13 @@
 {
     public class AssetPairMarkupsParams
     {
-        public decimal Bid { get; }
-        public decimal Ask { get; }
+        public decimal BidMultiplier { get; }
+        public decimal AskMultiplier { get; }
 
-        public AssetPairMarkupsParams(decimal bid, decimal ask)
+        public AssetPairMarkupsParams(decimal bidMultiplier, decimal askMultiplier)
         {
-            Bid = bid;
-            Ask = ask;
+            BidMultiplier = bidMultiplier;
+            AskMultiplier = askMultiplier;
         }
     }
 }
