@@ -227,7 +227,7 @@ namespace MarginTrading.OrderbookAggregator
                         QueueName = settings.CurrentValue.SlackNotifications.AzureQueue.QueueName
                     }, aggregateLogger);
 
-                return new MtSlackNotificationsSender(rootSlackSender, "MT OrderbookGenerator", "MarginTrading");
+                return new MtSlackNotificationsSender(rootSlackSender, "MT OrderbookAggregator", "MarginTrading");
             }
         }
     }

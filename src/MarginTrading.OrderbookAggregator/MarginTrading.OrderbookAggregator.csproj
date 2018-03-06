@@ -44,9 +44,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\client\MarginTrading.OrderbookAggregator.Contracts\MarginTrading.OrderbookAggregator.Contracts.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Filters" />
-  </ItemGroup>
   <ProjectExtensions>
     <VisualStudio>
       <UserProperties />
