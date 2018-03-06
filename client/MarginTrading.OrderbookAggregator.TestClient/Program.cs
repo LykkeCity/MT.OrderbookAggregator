@@ -52,7 +52,7 @@ namespace MarginTrading.OrderbookAggregator.TestClient
         {
             var services = new ServiceCollection();
             var builder = new ContainerBuilder();
-            services.RegisterMtOrderbookAggregatorClient("http://localhost:5007", "TestClient");
+            services.RegisterMtOrderbookAggregatorClient("http://mt-orderbook-aggregator.lykke-mt.svc.cluster.local", "TestClient");
             builder.Populate(services);
             var container = builder.Build();
             var client = container.Resolve<IMtOrderbookAggregatorClient>();
