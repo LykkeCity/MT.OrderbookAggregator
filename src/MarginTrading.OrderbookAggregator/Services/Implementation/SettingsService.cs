@@ -2,7 +2,11 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
+using Autofac;
+using Common;
+using Common.Log;
 using JetBrains.Annotations;
 using MarginTrading.Backend.Contracts.AssetPairSettings;
 using MarginTrading.Backend.Contracts.DataReaderClient;
@@ -14,20 +18,21 @@ using MoreLinq;
 
 namespace MarginTrading.OrderbookAggregator.Services.Implementation
 {
-    internal class SettingsService : ISettingsService
+    internal class SettingsService : TimerPeriod, ISettingsService, ICustomStartup
     {
         private readonly ISettingsRootService _settingsRootService;
         private readonly IMtDataReaderClient _mtDataReaderClient;
         private readonly ISystem _system;
-        private readonly ICachedCalculation<Dictionary<string, AssetPairSettings>> _assetPairsSettings;
+        private Dictionary<string, AssetPairSettings> _assetPairsSettings;
+        private readonly ManualResetEventSlim _assetPairsInitializedEvent = new ManualResetEventSlim();
 
         public SettingsService(ISettingsRootService settingsRootService, IMtDataReaderClient mtDataReaderClient,
-            ISystem system)
+            ISystem system, ILog log) 
+            : base(nameof(SettingsService), (int) TimeSpan.FromMinutes(2).TotalMilliseconds, log)
         {
             _settingsRootService = settingsRootService;
             _mtDataReaderClient = mtDataReaderClient;
             _system = system;
-            _assetPairsSettings = GetAssetPairsSettingsCache();
         }
 
         public AssetPairSettings TryGetAssetPair(string exchangeName, string basePairId)
@@ -41,7 +46,7 @@ namespace MarginTrading.OrderbookAggregator.Services.Implementation
                 case ExchangeModeEnum.Disabled:
                     return null;
                 case ExchangeModeEnum.TakeConfigured:
-                    return _assetPairsSettings.Get().GetValueOrDefault(basePairId);
+                    return _assetPairsSettings.GetValueOrDefault(basePairId);
                 default:
                     throw new ArgumentOutOfRangeException(nameof(exchange.Mode), exchange.Mode, string.Empty);
             }
@@ -73,15 +78,6 @@ namespace MarginTrading.OrderbookAggregator.Services.Implementation
             return TryGetExchange(exchangeName)?.OutdatingThreshold;
         }
 
-        private ICachedCalculation<Dictionary<string, AssetPairSettings>> GetAssetPairsSettingsCache()
-        {
-            return Calculate.Cached(
-                () => _system.UtcNow,
-                (last, current) => current.Subtract(last) < TimeSpan.FromMinutes(2),
-                _ => _mtDataReaderClient.AssetPairSettingsRead.Get(MatchingEngineModeContract.Stp)
-                    .GetAwaiter().GetResult().ToDictionary(s => s.BasePairId, CreateAssetPairSettings));
-        }
-
         private static AssetPairSettings CreateAssetPairSettings(AssetPairSettingsContract s)
         {
             s.AssetPairId.RequiredNotNullOrWhiteSpace(nameof(s.AssetPairId));
@@ -93,6 +89,19 @@ namespace MarginTrading.OrderbookAggregator.Services.Implementation
             return new AssetPairSettings(
                 new AssetPairMarkupsParams(s.MultiplierMarkupBid, s.MultiplierMarkupAsk),
                 s.AssetPairId);
+        }
+
+        public override async Task Execute()
+        {
+            _assetPairsSettings = (await _mtDataReaderClient.AssetPairSettingsRead.Get(MatchingEngineModeContract.Stp))
+                .ToDictionary(s => s.BasePairId, CreateAssetPairSettings);
+            _assetPairsInitializedEvent.Set();
+        }
+
+        public void Initialize()
+        {
+            Start();
+            _assetPairsInitializedEvent.Wait();
         }
     }
 }

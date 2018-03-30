@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Autofac;
 using Common.Log;
 using Lykke.Logs;
-using Lykke.Service.CandlesHistory.Client;
 using Lykke.SlackNotifications;
 using MarginTrading.Backend.Contracts;
 using MarginTrading.Backend.Contracts.AssetPairSettings;
@@ -13,7 +12,6 @@ using MarginTrading.Backend.Contracts.DataReaderClient;
 using MarginTrading.OrderbookAggregator.AzureRepositories;
 using MarginTrading.OrderbookAggregator.AzureRepositories.Implementation;
 using MarginTrading.OrderbookAggregator.AzureRepositories.StorageModels;
-using MarginTrading.OrderbookAggregator.Enums;
 using MarginTrading.OrderbookAggregator.Infrastructure;
 using MarginTrading.OrderbookAggregator.Infrastructure.Implementation;
 using MarginTrading.OrderbookAggregator.Modules;
@@ -91,7 +89,6 @@ namespace MarginTrading.OrderbookAggregator.Tests.Integrational
                 Setup<IRabbitMqService>(StubRabbitMqService)
                     .Setup<ISystem>(m => m.Setup(s => s.UtcNow).Returns(() => UtcNow))
                     .Setup<ILog>(LogToConsole)
-                    .Setup<ICandleshistoryservice>()
                     .Setup(new LykkeLogToAzureStorage(null))
                     .Setup<ISlackNotificationsSender>(s =>
                         s.SendAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()) == Task.CompletedTask)
