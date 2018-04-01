@@ -36,9 +36,9 @@ namespace MarginTrading.OrderbookAggregator.Tests.Integrational.Services
         {
             //arrange
             var env = _testSuit.Build();
-            var btcusdSettings = env.AssetPairSettings.Single(s => s.AssetPairId == "BTCUSD");
-            btcusdSettings.MultiplierMarkupBid = 0.9m;
-            btcusdSettings.MultiplierMarkupAsk = 1.1m;
+            var btcusdSettings = env.AssetPairs.Single(s => s.Id == "BTCUSD");
+            btcusdSettings.StpMultiplierMarkupBid = 0.9m;
+            btcusdSettings.StpMultiplierMarkupAsk = 1.1m;
             var container = env.CreateContainer();
             var aggregatorService = container.Resolve<IOrderbookAggregatorService>();
 
@@ -61,8 +61,8 @@ namespace MarginTrading.OrderbookAggregator.Tests.Integrational.Services
         {
             //arrange
             var env = _testSuit.Build();
-            var btcusdSettings = env.AssetPairSettings.Single(s => s.AssetPairId == "BTCUSD");
-            btcusdSettings.AssetPairId = "BTCUSD.cy";
+            var btcusdSettings = env.AssetPairs.Single(s => s.Id == "BTCUSD");
+            btcusdSettings.Id = "BTCUSD.cy";
             var container = env.CreateContainer();
             var aggregatorService = container.Resolve<IOrderbookAggregatorService>();
 

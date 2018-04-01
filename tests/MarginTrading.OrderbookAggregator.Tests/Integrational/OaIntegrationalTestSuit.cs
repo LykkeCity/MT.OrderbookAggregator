@@ -28,7 +28,8 @@ namespace MarginTrading.OrderbookAggregator.Tests.Integrational
         {
             MarginTradingOrderbookAggregator = new MarginTradingOrderbookAggregatorSettings
             {
-                Db = new DbSettings {QueuePersistanceRepositoryConnString = "fake"}
+                Db = new DbSettings {QueuePersistanceRepositoryConnString = "fake"},
+                LegalEntity = "LYKKEVU",
             },
             RiskInformingSettings = new RiskInformingSettings {Data = new RiskInformingParams[0]}
         };
@@ -58,23 +59,23 @@ namespace MarginTrading.OrderbookAggregator.Tests.Integrational
             public InMemoryBlobStorageSingleObjectFactory BlobStorageFactory { get; } =
                 new InMemoryBlobStorageSingleObjectFactory();
 
-            public List<AssetPairSettingsContract> AssetPairSettings { get; } = new List<AssetPairSettingsContract>
+            public List<AssetPairContract> AssetPairs { get; } = new List<AssetPairContract>
             {
-                new AssetPairSettingsContract
+                new AssetPairContract
                 {
-                    AssetPairId = "BTCUSD",
+                    Id = "BTCUSD",
                     BasePairId = "BTCUSD",
                     MatchingEngineMode = MatchingEngineModeContract.Stp,
-                    MultiplierMarkupAsk = 1,
-                    MultiplierMarkupBid = 1
+                    StpMultiplierMarkupAsk = 1,
+                    StpMultiplierMarkupBid = 1
                 },
-                new AssetPairSettingsContract
+                new AssetPairContract
                 {
-                    AssetPairId = "ETHUSD",
+                    Id = "ETHUSD",
                     BasePairId = "ETHUSD",
                     MatchingEngineMode = MatchingEngineModeContract.Stp,
-                    MultiplierMarkupAsk = 1,
-                    MultiplierMarkupBid = 1
+                    StpMultiplierMarkupAsk = 1,
+                    StpMultiplierMarkupBid = 1
                 },
             };
 
@@ -94,10 +95,9 @@ namespace MarginTrading.OrderbookAggregator.Tests.Integrational
                         s.SendAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()) == Task.CompletedTask)
                     .Setup<IAzureTableStorageFactoryService>(TableStorageFactory)
                     .Setup<IAzureBlobStorageFactoryService>(BlobStorageFactory)
-                    .Setup<IAssetPairSettingsReadingApi>(m => m.Setup(a =>
-                        a.Get(MatchingEngineModeContract.Stp)).ReturnsAsync(AssetPairSettings))
-                    .Setup<IMtDataReaderClient>(m =>
-                        m.AssetPairSettingsRead == suit.GetMockObj<IAssetPairSettingsReadingApi>());
+                    .Setup<IAssetPairsReadingApi>(m => m.Setup(a =>
+                        a.Get("LYKKEVU", MatchingEngineModeContract.Stp)).ReturnsAsync(AssetPairs))
+                    .Setup<IMtDataReaderClient>(m => m.AssetPairsRead == suit.GetMockObj<IAssetPairsReadingApi>());
                 SettingsRoot = GetDefaultSettingsRoot();
             }
 

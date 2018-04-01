@@ -12,6 +12,6 @@ namespace MarginTrading.OrderbookAggregator.Tests.Integrational
         SettingsRootStorageModel SettingsRoot { get; set; }
         InMemoryTableStorageFactory TableStorageFactory { get; }
         InMemoryBlobStorageSingleObjectFactory BlobStorageFactory { get; }
-        List<AssetPairSettingsContract> AssetPairSettings { get; }
+        List<AssetPairContract> AssetPairs { get; }
     }
 }
