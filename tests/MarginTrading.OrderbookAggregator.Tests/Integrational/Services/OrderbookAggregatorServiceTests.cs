@@ -36,11 +36,11 @@ namespace MarginTrading.OrderbookAggregator.Tests.Integrational.Services
         {
             //arrange
             var env = _testSuit.Build();
-            var container = env.CreateContainer();
-            var aggregatorService = container.Resolve<IOrderbookAggregatorService>();
             var btcusdSettings = env.AssetPairSettings.Single(s => s.AssetPairId == "BTCUSD");
             btcusdSettings.MultiplierMarkupBid = 0.9m;
             btcusdSettings.MultiplierMarkupAsk = 1.1m;
+            var container = env.CreateContainer();
+            var aggregatorService = container.Resolve<IOrderbookAggregatorService>();
 
             //act
             await aggregatorService.ProcessNewExternalOrderbookAsync(env.GetOrderbookMessage("bitmex",
@@ -61,10 +61,10 @@ namespace MarginTrading.OrderbookAggregator.Tests.Integrational.Services
         {
             //arrange
             var env = _testSuit.Build();
-            var container = env.CreateContainer();
-            var aggregatorService = container.Resolve<IOrderbookAggregatorService>();
             var btcusdSettings = env.AssetPairSettings.Single(s => s.AssetPairId == "BTCUSD");
             btcusdSettings.AssetPairId = "BTCUSD.cy";
+            var container = env.CreateContainer();
+            var aggregatorService = container.Resolve<IOrderbookAggregatorService>();
 
             //act
             await aggregatorService.ProcessNewExternalOrderbookAsync(env.GetOrderbookMessage("bitmex",
