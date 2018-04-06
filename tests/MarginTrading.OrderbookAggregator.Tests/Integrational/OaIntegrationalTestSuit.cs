@@ -96,7 +96,7 @@ namespace MarginTrading.OrderbookAggregator.Tests.Integrational
                     .Setup<IAzureTableStorageFactoryService>(TableStorageFactory)
                     .Setup<IAzureBlobStorageFactoryService>(BlobStorageFactory)
                     .Setup<IAssetPairsReadingApi>(m => m.Setup(a =>
-                        a.Get("LYKKEVU", MatchingEngineModeContract.Stp)).ReturnsAsync(AssetPairs))
+                        a.List("LYKKEVU", MatchingEngineModeContract.Stp)).ReturnsAsync(AssetPairs))
                     .Setup<IMtDataReaderClient>(m => m.AssetPairsRead == suit.GetMockObj<IAssetPairsReadingApi>());
                 SettingsRoot = GetDefaultSettingsRoot();
             }

@@ -31,7 +31,7 @@ namespace MarginTrading.OrderbookAggregator.Services.Implementation
 
         public SettingsService(ISettingsRootService settingsRootService, IMtDataReaderClient mtDataReaderClient,
             ILog log, IReloadingManager<MarginTradingOrderbookAggregatorSettings> settings)
-            : base(nameof(SettingsService), (int) TimeSpan.FromMinutes(2).TotalMilliseconds, log)
+            : base(nameof(SettingsService), (int) TimeSpan.FromMinutes(3).TotalMilliseconds + 1, log)
         {
             _settingsRootService = settingsRootService;
             _mtDataReaderClient = mtDataReaderClient;
@@ -96,7 +96,7 @@ namespace MarginTrading.OrderbookAggregator.Services.Implementation
 
         public override async Task Execute()
         {
-            _assetPairsSettings = (await _mtDataReaderClient.AssetPairsRead.Get(_settings.CurrentValue.LegalEntity,
+            _assetPairsSettings = (await _mtDataReaderClient.AssetPairsRead.List(_settings.CurrentValue.LegalEntity,
                     MatchingEngineModeContract.Stp))
                 .ToDictionary(s => s.BasePairId, CreateAssetPairSettings);
             _assetPairsInitializedEvent.Set();
