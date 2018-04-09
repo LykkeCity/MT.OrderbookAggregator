@@ -8,12 +8,14 @@ using Autofac;
 using Common;
 using Common.Log;
 using JetBrains.Annotations;
+using Lykke.SettingsReader;
 using MarginTrading.Backend.Contracts.AssetPairSettings;
 using MarginTrading.Backend.Contracts.DataReaderClient;
 using MarginTrading.OrderbookAggregator.Enums;
 using MarginTrading.OrderbookAggregator.Infrastructure;
 using MarginTrading.OrderbookAggregator.Infrastructure.Implementation;
 using MarginTrading.OrderbookAggregator.Models.Settings;
+using MarginTrading.OrderbookAggregator.Settings;
 using MoreLinq;
 
 namespace MarginTrading.OrderbookAggregator.Services.Implementation
@@ -22,17 +24,18 @@ namespace MarginTrading.OrderbookAggregator.Services.Implementation
     {
         private readonly ISettingsRootService _settingsRootService;
         private readonly IMtDataReaderClient _mtDataReaderClient;
-        private readonly ISystem _system;
         private Dictionary<string, AssetPairSettings> _assetPairsSettings;
+        private readonly IReloadingManager<MarginTradingOrderbookAggregatorSettings> _settings;
+
         private readonly ManualResetEventSlim _assetPairsInitializedEvent = new ManualResetEventSlim();
 
         public SettingsService(ISettingsRootService settingsRootService, IMtDataReaderClient mtDataReaderClient,
-            ISystem system, ILog log) 
-            : base(nameof(SettingsService), (int) TimeSpan.FromMinutes(2).TotalMilliseconds, log)
+            ILog log, IReloadingManager<MarginTradingOrderbookAggregatorSettings> settings)
+            : base(nameof(SettingsService), (int) TimeSpan.FromMinutes(3).TotalMilliseconds + 1, log)
         {
             _settingsRootService = settingsRootService;
             _mtDataReaderClient = mtDataReaderClient;
-            _system = system;
+            _settings = settings;
         }
 
         public AssetPairSettings TryGetAssetPair(string exchangeName, string basePairId)
@@ -78,22 +81,23 @@ namespace MarginTrading.OrderbookAggregator.Services.Implementation
             return TryGetExchange(exchangeName)?.OutdatingThreshold;
         }
 
-        private static AssetPairSettings CreateAssetPairSettings(AssetPairSettingsContract s)
+        private static AssetPairSettings CreateAssetPairSettings(AssetPairContract s)
         {
-            s.AssetPairId.RequiredNotNullOrWhiteSpace(nameof(s.AssetPairId));
+            s.Id.RequiredNotNullOrWhiteSpace(nameof(s.Id));
             s.BasePairId.RequiredNotNullOrWhiteSpace(nameof(s.BasePairId));
             s.MatchingEngineMode.RequiredEqualsTo(MatchingEngineModeContract.Stp, nameof(s.MatchingEngineMode));
-            s.MultiplierMarkupBid.RequiredGreaterThan(0, nameof(s.MultiplierMarkupBid));
-            s.MultiplierMarkupAsk.RequiredGreaterThan(0, nameof(s.MultiplierMarkupAsk));
+            s.StpMultiplierMarkupBid.RequiredGreaterThan(0, nameof(s.StpMultiplierMarkupBid));
+            s.StpMultiplierMarkupAsk.RequiredGreaterThan(0, nameof(s.StpMultiplierMarkupAsk));
 
             return new AssetPairSettings(
-                new AssetPairMarkupsParams(s.MultiplierMarkupBid, s.MultiplierMarkupAsk),
-                s.AssetPairId);
+                new AssetPairMarkupsParams(s.StpMultiplierMarkupBid, s.StpMultiplierMarkupAsk),
+                s.Id);
         }
 
         public override async Task Execute()
         {
-            _assetPairsSettings = (await _mtDataReaderClient.AssetPairSettingsRead.Get(MatchingEngineModeContract.Stp))
+            _assetPairsSettings = (await _mtDataReaderClient.AssetPairsRead.List(_settings.CurrentValue.LegalEntity,
+                    MatchingEngineModeContract.Stp))
                 .ToDictionary(s => s.BasePairId, CreateAssetPairSettings);
             _assetPairsInitializedEvent.Set();
         }
