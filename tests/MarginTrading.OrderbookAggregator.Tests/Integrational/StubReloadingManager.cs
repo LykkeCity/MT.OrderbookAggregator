@@ -18,6 +18,11 @@ namespace MarginTrading.OrderbookAggregator.Tests.Integrational
             return Task.FromResult(CurrentValue);
         }
 
+        public bool WasReloadedFrom(DateTime dateTime)
+        {
+            return false;
+        }
+
         public bool HasLoaded => true;
         public T CurrentValue => _valueGetter();
     }
