@@ -44,7 +44,7 @@ namespace MarginTrading.OrderbookAggregator.Services.Implementation
         {
             if (string.IsNullOrEmpty(orderbook.AssetPairId) || string.IsNullOrEmpty(orderbook.ExchangeName))
                 return Task.CompletedTask;
-            
+
             var settings = _settingsService.TryGetAssetPair(orderbook.ExchangeName, orderbook.AssetPairId);
             if (settings == null || (orderbook.Bids?.Count ?? 0) == 0 || (orderbook.Asks?.Count ?? 0) == 0)
                 return Task.CompletedTask;
@@ -73,17 +73,17 @@ namespace MarginTrading.OrderbookAggregator.Services.Implementation
             decimal markupMultiplier)
         {
             return prices.GroupBy(p => p.Price).Select(gr => new VolumePrice
-                {
-                    Price = gr.Key * markupMultiplier,
-                    Volume = gr.Sum(b => b.Volume),
-                })
+            {
+                Price = gr.Key * markupMultiplier,
+                Volume = gr.Sum(b => b.Volume),
+            })
                 .ToList();
         }
 
         private static IMessageProducer<ExternalExchangeOrderbookMessage> CreateRabbitMqMessageProducer(
             IReloadingManager<MarginTradingOrderbookAggregatorSettings> settings, IRabbitMqService rabbitMqService)
         {
-            return rabbitMqService.GetProducer(settings.Nested(s => s.RabbitMq.Publishers.Orderbooks), false, 
+            return rabbitMqService.GetProducer(settings.Nested(s => s.RabbitMq.Publishers.Orderbooks), true,
                 rabbitMqService.GetMsgPackSerializer<ExternalExchangeOrderbookMessage>());
         }
 
@@ -96,15 +96,15 @@ namespace MarginTrading.OrderbookAggregator.Services.Implementation
         {
             _alertService.AlertStopping();
         }
-        
-        private void WriteStats(ExternalExchangeOrderbookMessage orderbook, 
+
+        private void WriteStats(ExternalExchangeOrderbookMessage orderbook,
             ExternalExchangeOrderbookMessage resultingOrderbook, DateTime now)
         {
             var bestPrices = _bestPricesService.Calc(orderbook);
             var resultingBestPrices = _bestPricesService.Calc(resultingOrderbook);
-            
-            _orderbooksStatusService.SetStatus(orderbook.ExchangeName, orderbook.AssetPairId, 
-                new OrderbookStatus(bestPrices.BestBid, bestPrices.BestAsk, 
+
+            _orderbooksStatusService.SetStatus(orderbook.ExchangeName, orderbook.AssetPairId,
+                new OrderbookStatus(bestPrices.BestBid, bestPrices.BestAsk,
                     resultingBestPrices.BestBid, resultingBestPrices.BestAsk,
                     orderbook.Bids.Count, orderbook.Asks.Count,
                     resultingOrderbook.Bids.Count, resultingOrderbook.Asks.Count,
