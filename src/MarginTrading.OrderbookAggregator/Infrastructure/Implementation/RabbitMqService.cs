@@ -23,7 +23,7 @@ namespace MarginTrading.OrderbookAggregator.Infrastructure.Implementation
     {
         private static readonly JsonSerializerSettings JsonSerializerSettings = new JsonSerializerSettings
         {
-            Converters = {new StringEnumConverter()}
+            Converters = { new StringEnumConverter() }
         };
 
         private readonly ILog _logger;
@@ -31,8 +31,8 @@ namespace MarginTrading.OrderbookAggregator.Infrastructure.Implementation
         private readonly ConcurrentDictionary<string, IStopable> _subscribers =
             new ConcurrentDictionary<string, IStopable>();
 
-        private readonly ConcurrentDictionary<RabbitMqSubscriptionSettings, Lazy<IStopable>> _producers =
-            new ConcurrentDictionary<RabbitMqSubscriptionSettings, Lazy<IStopable>>(
+        private readonly ConcurrentDictionary<RabbitMqSubscriptionSettings, IStopable> _producers =
+            new ConcurrentDictionary<RabbitMqSubscriptionSettings, IStopable>(
                 new SubscriptionSettingsEqualityComparer());
 
         [ItemCanBeNull] private readonly Lazy<MessagePackBlobPublishingQueueRepository> _queueRepository;
@@ -57,7 +57,7 @@ namespace MarginTrading.OrderbookAggregator.Infrastructure.Implementation
             foreach (var stoppable in _subscribers.Values)
                 stoppable.Stop();
             foreach (var stoppable in _producers.Values)
-                stoppable.Value.Stop();
+                stoppable.Stop();
         }
 
         public IRabbitMqSerializer<TMessage> GetJsonSerializer<TMessage>()
@@ -82,26 +82,23 @@ namespace MarginTrading.OrderbookAggregator.Infrastructure.Implementation
                 IsDurable = isDurable,
             };
 
-            return (IMessageProducer<TMessage>) _producers.GetOrAdd(subscriptionSettings, CreateProducer).Value;
+            return (IMessageProducer<TMessage>)_producers.GetOrAdd(subscriptionSettings, CreateProducer);
 
-            Lazy<IStopable> CreateProducer(RabbitMqSubscriptionSettings s)
+            IStopable CreateProducer(RabbitMqSubscriptionSettings s)
             {
-                // Lazy ensures RabbitMqPublisher will be created and started only once
-                // https://andrewlock.net/making-getoradd-on-concurrentdictionary-thread-safe-using-lazy/
-                return new Lazy<IStopable>(() =>
-                {
-                    var publisher = new RabbitMqPublisher<TMessage>(s);
 
-                    if (isDurable && _queueRepository.Value != null)
-                        publisher.SetQueueRepository(_queueRepository.Value);
-                    else
-                        publisher.DisableInMemoryQueuePersistence();
+                var publisher = new RabbitMqPublisher<TMessage>(s);
 
-                    return publisher
-                        .SetSerializer(serializer)
-                        .SetLogger(_logger)
-                        .Start();
-                });
+                if (isDurable && _queueRepository.Value != null)
+                    publisher.SetQueueRepository(_queueRepository.Value);
+                else
+                    publisher.DisableInMemoryQueuePersistence();
+
+                return publisher
+                    .SetSerializer(serializer)
+                    .SetLogger(_logger)
+                    .Start();
+
             }
         }
 
