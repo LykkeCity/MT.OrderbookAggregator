@@ -28,9 +28,9 @@ namespace MarginTrading.OrderbookAggregator.Services.Implementation
             _logger.WriteInfoAsync("Broker.Run", null, "Starting broker");
             try
             {
-                _rabbitMqService.Subscribe<ExternalExchangeOrderbookMessage>(_settings.Nested(s => s.RabbitMq.Consumers.FiatOrderbooks), true,
+                _rabbitMqService.Subscribe<ExternalExchangeOrderbookMessage>(_settings.Nested(s => s.RabbitMq.Consumers.FiatOrderbooks), false,
                     _orderbookAggregatorService.ProcessNewExternalOrderbookAsync);
-                _rabbitMqService.Subscribe<ExternalExchangeOrderbookMessage>(_settings.Nested(s => s.RabbitMq.Consumers.CryptoOrderbooks), true,
+                _rabbitMqService.Subscribe<ExternalExchangeOrderbookMessage>(_settings.Nested(s => s.RabbitMq.Consumers.CryptoOrderbooks), false,
                     _orderbookAggregatorService.ProcessNewExternalOrderbookAsync);
             }
             catch (Exception ex)
