@@ -10,13 +10,15 @@ using MarginTrading.OrderbookAggregator.Infrastructure;
 using MarginTrading.OrderbookAggregator.Infrastructure.Implementation;
 using MarginTrading.OrderbookAggregator.Models;
 using MarginTrading.OrderbookAggregator.Settings;
+using Lykke.RabbitMqBroker.Publisher;
+using Lykke.RabbitMqBroker.Subscriber;
 
 namespace MarginTrading.OrderbookAggregator.Services.Implementation
 {
     internal class OrderbookAggregatorService : IOrderbookAggregatorService, IDisposable, ICustomStartup
     {
         private readonly ISettingsService _settingsService;
-        private readonly Lazy<IMessageProducer<ExternalExchangeOrderbookMessage>> _messageProducer;
+        private readonly IMessageProducer<ExternalExchangeOrderbookMessage> _messageProducer;
         private readonly ISystem _system;
         private readonly IAlertService _alertService;
         private readonly IBestPricesService _bestPricesService;
@@ -36,8 +38,7 @@ namespace MarginTrading.OrderbookAggregator.Services.Implementation
             _bestPricesService = bestPricesService;
             _watchdogService = watchdogService;
             _orderbooksStatusService = orderbooksStatusService;
-            _messageProducer = new Lazy<IMessageProducer<ExternalExchangeOrderbookMessage>>(() =>
-                CreateRabbitMqMessageProducer(settings, rabbitMqService));
+            _messageProducer = CreateRabbitMqMessageProducer(settings, rabbitMqService);
         }
 
         public Task ProcessNewExternalOrderbookAsync(ExternalExchangeOrderbookMessage orderbook)
@@ -66,7 +67,7 @@ namespace MarginTrading.OrderbookAggregator.Services.Implementation
 
             _watchdogService.OnOrderbookArrived(orderbook.ExchangeName, orderbook.AssetPairId, now);
             WriteStats(orderbook, externalOrderbook, now);
-            return _messageProducer.Value.ProduceAsync(externalOrderbook);
+            return _messageProducer.ProduceAsync(externalOrderbook);
         }
 
         private static List<VolumePrice> GetOrderbookPositions(IEnumerable<VolumePrice> prices,
